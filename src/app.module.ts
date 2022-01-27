@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DbSizeModule } from './logsSize/dbSize.module';
+import { DbSizeModule } from './dbSize/dbSize.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
