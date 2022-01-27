@@ -45,7 +45,7 @@ export class DbSizeService {
     return {
       log,
       data,
-      'db-count': {
+      dbCount: {
         log: logCount,
         data: dataCount,
       },
