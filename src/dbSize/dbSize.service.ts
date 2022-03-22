@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import Sybase = require('sybase-promised');
 import { Queries } from './queries';
-import { SizeDbResult, SizeResponse } from './types/sizeDbResult.intrface';
+import { SizeDbResult, SizeResponse } from './types/sizeDbResult.interface';
 
 @Injectable()
 export class DbSizeService {
@@ -34,21 +39,37 @@ export class DbSizeService {
   }
 
   async getAll() {
-    await this.connectToSybase();
-    const logResult = await this.getLogSize();
-    const dataResult = await this.getDataSize();
-    const logCount = logResult.length;
-    const dataCount = logResult.length;
-    const log = this.buildResult(logResult);
-    const data = this.buildResult(dataResult);
-    this.connection.disconnect();
-    return {
-      log,
-      data,
-      dbCount: {
-        log: logCount,
-        data: dataCount,
-      },
-    };
+    try {
+      await this.connectToSybase();
+    } catch {
+      throw new HttpException(
+        'Не удалось подключиться к БД',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    try {
+      const logResult = await this.getLogSize();
+      const dataResult = await this.getDataSize();
+      const logCount = logResult.length;
+      const dataCount = logResult.length;
+      const log = this.buildResult(logResult);
+      const data = this.buildResult(dataResult);
+
+      return {
+        log,
+        data,
+        dbCount: {
+          log: logCount,
+          data: dataCount,
+        },
+      };
+    } catch (e) {
+      throw new HttpException(
+        'Ошибка в получении запроса',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    } finally {
+      this.connection.disconnect();
+    }
   }
 }
